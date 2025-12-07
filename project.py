@@ -20,6 +20,9 @@ PADDING = 20
 
 class KilterBoardGUI:
     def __init__(self, root):
+        """
+        Sets up the window
+        """
         self.root = root
         self.root.title("Kilter Board – Climb Generator")
         self.root.attributes('-fullscreen', True)
@@ -81,30 +84,11 @@ class KilterBoardGUI:
         self.button.pack(pady=PADDING)
         # Draw the empty grid once
         #self.draw_grid()
-
-    def draw_grid(self):
-        for r in range(BOARD_ROWS):
-            for c in range(BOARD_COLS):
-                
-                
-                #debug
-                if c == 34:
-                    print(f"col: {c} row: {r}")
-                    print(f"px: {PADDING + c * CELL_SIZE + CELL_SIZE / 2} py: {PADDING + (BOARD_ROWS - r - 1) * CELL_SIZE + CELL_SIZE / 2}")
-                
-
-                x1 = PADDING + c * CELL_SIZE
-                y1 = PADDING + (BOARD_ROWS - r - 1) * CELL_SIZE
-                x2 = x1 + CELL_SIZE
-                y2 = y1 + CELL_SIZE
-
-                self.canvas.create_rectangle(
-                    x1, y1, x2, y2,
-                    outline="#2e2e2e",
-                    fill="",
-                )
-                
+         
     def draw_climb(self, climb):
+        """
+        Shows a given climb on the kilter board within the window
+        """
         # Remove previous holds, keep the grid
         self.canvas.delete("hold")
         #columns are starting at pixel 30 and iterating 20 until 710
@@ -151,6 +135,10 @@ class KilterBoardGUI:
             )
 
     def generate_and_draw(self):
+        """
+        Grabs data from sliders and with those 
+        parameters generates a new climb
+        """
         max_reach = self.max_reach_slider.get()
         min_reach = self.min_reach_slider.get()
         climb = generate_kilterclimb(min_reach=min_reach, max_reach=max_reach)
@@ -158,6 +146,9 @@ class KilterBoardGUI:
             self.draw_climb(climb)
 
 def start_gui():
+    """
+    Start the users graphical user interface
+    """
     root = tk.Tk()
     KilterBoardGUI(root)
     root.mainloop()
@@ -170,31 +161,22 @@ class Hold:
 
     def __repr__(self):
         return f"Hold(col={self.col}, row={self.row}, type='{self.type}')"
-        try:
-            with open(filePath, 'r', encoding='utf-8') as file:
-                for line in file:
-                    line.strip()
-                    numbers = re.findall(r'\d+', line)
-                    self.holdCords.append(
-                        Hold(
-                            col = numbers[1],
-                            row = numbers[0],
-                            type = 'x'
-                        )
-                    )
-        except FileNotFoundError:
-            print(f"Error: The file '{filePath}' was not found.")
-        except Exception as e:
-            print(f"An error occurred: {e}")
         
 def reachable(h1, h2, max_reach=14, min_reach=2):
-    # Check if h2 is reachable from h1 by Euclidean distance
+    """
+    Check if h2 is within the given max_reach and min_reach from h1 by Euclidean distance
+    """
     dx = abs(h1["col"] - h2["col"])
     dy = abs(h1["row"] - h2["row"])
     dist = math.sqrt(dx*dx + dy*dy)
     return dist <= max_reach and dist >= min_reach
 
 def get_start_hands(max_reach=12, min_reach=12):
+    """
+    Returns one to two hands above row 7 but below row 13
+    that are reachable between each other
+    """
+
     candidates = [
         h for h in KilterBoard
         if h["type"] == "h" and 7 <= h["row"] <= 13
@@ -210,12 +192,18 @@ def get_start_hands(max_reach=12, min_reach=12):
     return random.choice(candidates), None
 
 def get_feet_candidates(below_row, left_col = 0, right_col = 35):
-    # Return holds good for feet below a given row.
+    """
+    Returns hold below a given row, and between given columns
+    """
     feet = [h for h in KilterBoard if h["type"] in ("f", "h") and h["row"] < below_row and h["col"] >= left_col and h["col"] <= right_col]
     random.shuffle(feet)
     return feet
 
 def get_next_hand_move(current_hand, max_reach=12, min_reach=12):
+    """
+    gives a next hand move and makes sure that
+    it is reachable from the current hand
+    """
     candidates = [h for h in KilterBoard if h["type"] == "h"]
     # must be above current hand
     candidates = [h for h in candidates if h["row"] > current_hand["row"]]
@@ -235,6 +223,9 @@ def generate_kilterclimb(
     max_reach = 12,
     min_reach = 2
 ):
+    """
+    Generates a climb with the given parameters
+    """
     if min_reach > max_reach:
         print("INVALID PARAMS: min_reach > max_reach")
         return None
@@ -294,7 +285,7 @@ def generate_kilterclimb(
             last_right = next_hand
 
         # new foot placements (optional but realistic)
-        feet_candidates = get_feet_candidates(current["row"])
+        feet_candidates = get_feet_candidates(current["row"], current["col"] - 3, current["col"] + 3)
         if feet_candidates and random.random() < 0.35:
             f = random.choice(feet_candidates)
             climb.append(Hold(f["col"], f["row"], "foot"))
@@ -342,7 +333,7 @@ def load_kilterBoard(filepath: str):
     - t = type ('h' = hand, 'f' = foot, 'n' = none)
     - d = direction ('u','r','d','l') ONLY for hand holds
 
-    Appends parsed data to the global HOLDS array
+    Appends parsed data to the global KilterBoard list
     """
     global KilterBoard
     KilterBoard.clear()  # Reset before loading
