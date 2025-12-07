@@ -43,7 +43,6 @@ class KilterBoardGUI:
             image=self.scaled_img
         )
 
-
         right_frame = tk.Frame(root)
         right_frame.pack(side="right",
             fill="y",
@@ -108,12 +107,42 @@ class KilterBoardGUI:
         self.min_moves_slider.set(2)
         self.min_moves_slider.pack()
 
+        #add a check box for crazy mode
+        label = tk.Label(right_frame, text="Remove upwards restriction")
+        label.pack()
+
+        self.crazy_checkbox_var = tk.BooleanVar()
+
+        self.crazy_mode_check_box = tk.Checkbutton(
+            right_frame,
+            variable=self.crazy_checkbox_var
+        )
+
+        self.crazy_mode_check_box.pack()
+
+        #add a check box for allowing two finishes
+        label = tk.Label(right_frame, text="Allow two finishes")
+        label.pack()
+
+        self.two_finishes_checkbox_var = tk.BooleanVar()
+
+        self.two_fisishes_checkbox_var = tk.Checkbutton(
+            right_frame,
+            variable=self.two_finishes_checkbox_var
+        )
+        self.two_fisishes_checkbox_var.select()
+
+        self.two_fisishes_checkbox_var.pack()
+
         #add button to generate climb
         self.button = Button(right_frame,
             text="Generate New Climb",
             command=self.generate_and_draw
         )
         self.button.pack(pady=PADDING)
+
+        #add invalid input text
+
         # Draw the empty grid once
         #self.draw_grid()
          
@@ -175,7 +204,15 @@ class KilterBoardGUI:
         min_reach = self.min_reach_slider.get()
         max_moves = self.max_moves_slider.get()-1 
         min_moves = self.min_moves_slider.get()-1
-        climb = generate_kilterclimb(min_moves=min_moves, max_moves=max_moves, min_reach=min_reach, max_reach=max_reach)
+        crazy_mode = self.crazy_checkbox_var.get()
+        allow_two_finishes = self.two_finishes_checkbox_var.get()
+        climb = generate_kilterclimb(min_moves=min_moves, 
+            max_moves=max_moves,
+            min_reach=min_reach,
+            allow_two_finishes=allow_two_finishes,
+            max_reach=max_reach,
+            crazy_mode=crazy_mode
+        )
         if climb != None:
             self.draw_climb(climb)
 
@@ -233,14 +270,20 @@ def get_feet_candidates(below_row, left_col = 0, right_col = 35):
     random.shuffle(feet)
     return feet
 
-def get_next_hand_move(current_hand, max_reach=12, min_reach=12):
+def get_next_hand_move(current_hand, max_reach=12, min_reach=12, crazy_mode=False):
     """
     gives a next hand move and makes sure that
     it is reachable from the current hand
     """
     candidates = [h for h in KilterBoard if h["type"] == "h"]
-    # must be above current hand
-    candidates = [h for h in candidates if h["row"] > current_hand["row"]]
+    
+    # shortens the list to either above the current hand 
+    # or (above or equal) to the current hand
+    if not crazy_mode:
+        if random.random() > .25:
+            candidates = [h for h in candidates if h["row"] >= current_hand["row"]]
+        else:
+            candidates = [h for h in candidates if h["row"] > current_hand["row"]]
 
     random.shuffle(candidates)
 
@@ -254,9 +297,9 @@ def generate_kilterclimb(
     min_moves=2,
     max_moves=20,
     allow_two_finishes=True,
-    max_reach = 12,
-    min_reach = 2,
-    
+    max_reach=12,
+    min_reach=2,
+    crazy_mode=False
 ):
     """
     Generates a climb with the given parameters
@@ -307,7 +350,7 @@ def generate_kilterclimb(
     current = max(s1, s2, key=lambda h: h["row"] if h else 0)
 
     for _ in range(num_moves):
-        next_hand = get_next_hand_move(current, max_reach=max_reach, min_reach=min_reach)
+        next_hand = get_next_hand_move(current, max_reach=max_reach, min_reach=min_reach, crazy_mode=crazy_mode)
         if next_hand is None or next_hand["row"] >= 33:
             break
 
@@ -389,7 +432,6 @@ def load_kilterBoard(filepath: str):
                 "type": t,
                 "direction": d
             })
-
 
 load_kilterBoard("kilterBoardLayout.txt")
 start_gui()
