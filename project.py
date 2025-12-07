@@ -51,6 +51,8 @@ class KilterBoardGUI:
             pady=PADDING
         )
 
+
+        #add slider to set max reach
         label = tk.Label(right_frame, text="Max reach")
         label.pack()
         
@@ -64,6 +66,7 @@ class KilterBoardGUI:
         self.max_reach_slider.set(12)
         self.max_reach_slider.pack()
 
+        #add slider to set min reach
         label = tk.Label(right_frame, text="Min reach")
         label.pack()
         
@@ -77,6 +80,35 @@ class KilterBoardGUI:
         self.min_reach_slider.set(2)
         self.min_reach_slider.pack()
 
+        #add slider to set max moves
+        label = tk.Label(right_frame, text="Max moves")
+        label.pack()
+        
+        self.max_moves_slider = tk.Scale(
+            right_frame,
+            from_=2,
+            to=14,
+            orient="horizontal",
+            length=200
+        )
+        self.max_moves_slider.set(12)
+        self.max_moves_slider.pack()
+
+        #add slider to set min moves
+        label = tk.Label(right_frame, text="Min moves")
+        label.pack()
+        
+        self.min_moves_slider = tk.Scale(
+            right_frame,
+            from_=2,
+            to=14,
+            orient="horizontal",
+            length=200
+        )
+        self.min_moves_slider.set(2)
+        self.min_moves_slider.pack()
+
+        #add button to generate climb
         self.button = Button(right_frame,
             text="Generate New Climb",
             command=self.generate_and_draw
@@ -141,7 +173,9 @@ class KilterBoardGUI:
         """
         max_reach = self.max_reach_slider.get()
         min_reach = self.min_reach_slider.get()
-        climb = generate_kilterclimb(min_reach=min_reach, max_reach=max_reach)
+        max_moves = self.max_moves_slider.get()
+        min_moves = self.min_moves_slider.get()
+        climb = generate_kilterclimb(min_moves=min_moves, max_moves=max_moves, min_reach=min_reach, max_reach=max_reach)
         if climb != None:
             self.draw_climb(climb)
 
@@ -221,7 +255,8 @@ def generate_kilterclimb(
     max_moves=20,
     allow_two_finishes=True,
     max_reach = 12,
-    min_reach = 2
+    min_reach = 2,
+    
 ):
     """
     Generates a climb with the given parameters
@@ -229,7 +264,10 @@ def generate_kilterclimb(
     if min_reach > max_reach:
         print("INVALID PARAMS: min_reach > max_reach")
         return None
-    print(f"min reach{min_reach}, max reach {max_reach}")
+    
+    if min_moves > max_moves:
+        print("INVALID PARAMS: min_moves > max_moves")
+        return None
 
     climb = []
     """
@@ -239,8 +277,6 @@ def generate_kilterclimb(
     s1, s2 = get_start_hands(max_reach, min_reach)
     #appends them to the climb
     climb.append(Hold(s1["col"], s1["row"], "start"))
-    last_left = s1
-    last_right = s2
 
     if s2:
         climb.append(Hold(s2["col"], s2["row"], "start"))
@@ -277,35 +313,25 @@ def generate_kilterclimb(
 
         climb.append(Hold(next_hand["col"], next_hand["row"], "hand"))
         current = next_hand
-
-        # update last-left/right for opposition
-        if next_hand["col"] < (s2["col"] if s2 else s1["col"]):
-            last_left = next_hand
-        else:
-            last_right = next_hand
-
         # new foot placements (optional but realistic)
         feet_candidates = get_feet_candidates(current["row"], current["col"] - 3, current["col"] + 3)
         if feet_candidates and random.random() < 0.35:
             f = random.choice(feet_candidates)
             climb.append(Hold(f["col"], f["row"], "foot"))
             last_feet.append(f)
-
     # -------------------------
     #       FINISH HOLDS
     # -------------------------
     finishes = [
         h for h in KilterBoard
-        if h["type"] == "h" and h["row"] >= 28
+        if h["type"] == "h" and h["row"] >= current["row"]
     ]
     if not finishes:
         finishes = [h for h in KilterBoard if h["type"] == "h"]
-
     #chooses the finishes
     finish_count = random.randint(1,2) if allow_two_finishes else 1
 
     finishHold1 = random.choice(finishes)
-
 
     while not reachable(finishHold1, current, max_reach, min_reach):
         finishHold1 = random.choice(finishes);
