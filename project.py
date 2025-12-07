@@ -3,6 +3,7 @@ from tkinter import Canvas, Button, PhotoImage
 import math
 import random
 import re
+import time
 
 KilterBoard = []
 
@@ -194,10 +195,6 @@ def reachable(h1, h2, max_reach=14, min_reach=2):
     dist = math.sqrt(dx*dx + dy*dy)
     return dist <= max_reach and dist >= min_reach
 
-"""
- + check to see if holds are opposing as well after gui is set up
- + change to euclidian distance 
-"""
 def get_start_hands(max_reach=12, min_reach=12):
     candidates = [
         h for h in KilterBoard
@@ -213,18 +210,14 @@ def get_start_hands(max_reach=12, min_reach=12):
 
     return random.choice(candidates), None
 
-"""
- + update this so that it gives feet for the route/handhold not just random feet
-"""
 def get_feet_candidates(below_row, left_col = 0, right_col = 35):
     # Return holds good for feet below a given row.
     feet = [h for h in KilterBoard if h["type"] in ("f", "h") and h["row"] < below_row and h["col"] >= left_col and h["col"] <= right_col]
     random.shuffle(feet)
     return feet
 
-def get_next_hand_move(current_hand, prev_hand=None, max_reach=12, min_reach=12):
+def get_next_hand_move(current_hand, max_reach=12, min_reach=12):
     candidates = [h for h in KilterBoard if h["type"] == "h"]
-
     # must be above current hand
     candidates = [h for h in candidates if h["row"] > current_hand["row"]]
 
@@ -232,13 +225,13 @@ def get_next_hand_move(current_hand, prev_hand=None, max_reach=12, min_reach=12)
 
     for h in candidates:
         if reachable(current_hand, h, max_reach, min_reach):
-            if prev_hand is None or reachable(h, prev_hand, max_reach, min_reach):
-                return h
+            return h
+        
     return None
 
 def generate_kilterclimb(
-    min_moves=6,
-    max_moves=12,
+    min_moves=2,
+    max_moves=20,
     allow_two_finishes=True,
     max_reach = 12,
     min_reach = 2
@@ -288,8 +281,8 @@ def generate_kilterclimb(
     current = max(s1, s2, key=lambda h: h["row"] if h else 0)
 
     for _ in range(num_moves):
-        next_hand = get_next_hand_move(current, prev_hand=s1 if s2 is None else s2, max_reach=max_reach, min_reach=min_reach)
-        if next_hand is None:
+        next_hand = get_next_hand_move(current, max_reach=max_reach, min_reach=min_reach)
+        if next_hand is None or next_hand["row"] >= 33:
             break
 
         climb.append(Hold(next_hand["col"], next_hand["row"], "hand"))
