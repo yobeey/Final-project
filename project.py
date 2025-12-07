@@ -87,7 +87,7 @@ class KilterBoardGUI:
         self.max_moves_slider = tk.Scale(
             right_frame,
             from_=2,
-            to=14,
+            to=20,
             orient="horizontal",
             length=200
         )
@@ -101,7 +101,7 @@ class KilterBoardGUI:
         self.min_moves_slider = tk.Scale(
             right_frame,
             from_=2,
-            to=14,
+            to=20,
             orient="horizontal",
             length=200
         )
@@ -173,8 +173,8 @@ class KilterBoardGUI:
         """
         max_reach = self.max_reach_slider.get()
         min_reach = self.min_reach_slider.get()
-        max_moves = self.max_moves_slider.get()
-        min_moves = self.min_moves_slider.get()
+        max_moves = self.max_moves_slider.get()-1 
+        min_moves = self.min_moves_slider.get()-1
         climb = generate_kilterclimb(min_moves=min_moves, max_moves=max_moves, min_reach=min_reach, max_reach=max_reach)
         if climb != None:
             self.draw_climb(climb)
