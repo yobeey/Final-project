@@ -32,12 +32,53 @@ class KilterBoardGUI:
         self.scaled_img = img.subsample(2, 2)
         
         self.canvas = Canvas(root, width=width, height=height)
-        self.canvas.pack()
+        self.canvas.pack(side="left")
 
-        self.canvas.create_image(PADDING, PADDING, anchor="nw", image=self.scaled_img)
-        self.button = Button(root, text="Generate New Climb", command=self.generate_and_draw)
-        self.button.pack(pady=1)
+        self.canvas.create_image(PADDING,
+            PADDING,
+            anchor="nw",
+            image=self.scaled_img
+        )
 
+
+        right_frame = tk.Frame(root)
+        right_frame.pack(side="right",
+            fill="y",
+            padx=PADDING * 10,
+            pady=PADDING
+        )
+
+        label = tk.Label(right_frame, text="Max reach")
+        label.pack()
+        
+        self.max_reach_slider = tk.Scale(
+            right_frame,
+            from_=2,
+            to=20,
+            orient="horizontal",
+            length=200
+        )
+        self.max_reach_slider.set(12)
+        self.max_reach_slider.pack()
+
+        label = tk.Label(right_frame, text="Min reach")
+        label.pack()
+        
+        self.min_reach_slider = tk.Scale(
+            right_frame,
+            from_=2,
+            to=18,
+            orient="horizontal",
+            length=200
+        )
+        self.min_reach_slider.set(2)
+        self.min_reach_slider.pack()
+
+        self.button = Button(right_frame,
+            text="Generate New Climb",
+            command=self.generate_and_draw
+        )
+        self.button.pack(pady=PADDING)
         # Draw the empty grid once
         #self.draw_grid()
 
@@ -110,8 +151,11 @@ class KilterBoardGUI:
             )
 
     def generate_and_draw(self):
-        climb = generate_kilterclimb()
-        self.draw_climb(climb)
+        max_reach = self.max_reach_slider.get()
+        min_reach = self.min_reach_slider.get()
+        climb = generate_kilterclimb(min_reach=min_reach, max_reach=max_reach)
+        if climb != None:
+            self.draw_climb(climb)
 
 def start_gui():
     root = tk.Tk()
@@ -143,24 +187,18 @@ class Hold:
         except Exception as e:
             print(f"An error occurred: {e}")
         
-def reachable(h1, h2, max_reach=14):
+def reachable(h1, h2, max_reach=14, min_reach=2):
     # Check if h2 is reachable from h1 by Euclidean distance
     dx = abs(h1["col"] - h2["col"])
     dy = abs(h1["row"] - h2["row"])
-    return math.sqrt(dx*dx + dy*dy) <= max_reach
+    dist = math.sqrt(dx*dx + dy*dy)
+    return dist <= max_reach and dist >= min_reach
 
 """
  + check to see if holds are opposing as well after gui is set up
  + change to euclidian distance 
 """
-def is_good_opposition(h1, h2, min_dx=2, max_dx=12, max_dy=12):
-    # finds the distance between holds with manhatten distance
-    
-    dx = abs(h1["col"] - h2["col"])
-    dy = abs(h1["row"] - h2["row"])
-    return (dx >= min_dx) and (dx <= max_dx) and (dy <= max_dy)
-
-def get_start_hands(max_reach=12):
+def get_start_hands(max_reach=12, min_reach=12):
     candidates = [
         h for h in KilterBoard
         if h["type"] == "h" and 7 <= h["row"] <= 13
@@ -170,25 +208,10 @@ def get_start_hands(max_reach=12):
     # Attempt to pick opposing pair
     for i in range(len(candidates)):
         for j in range(i+1, len(candidates)):
-            if reachable(candidates[i], candidates[j], max_reach):
+            if reachable(candidates[i], candidates[j], max_reach, min_reach):
                 return candidates[i], candidates[j]
 
     return random.choice(candidates), None
-
-def get_finish_holds(num=1, max_reach=12):
-    # Selects 1 or 2 high-up hand holds on the board.
-    hand_holds = [h for h in KilterBoard if h["type"] == "h"]
-    high_holds = [h for h in hand_holds if h["row"] >= 30]
-
-    if not high_holds:
-        high_holds = hand_holds
-    
-    h1, h2 = random.sample(high_holds, num)
-    if num == 2:
-        while (not reachable(h1, h2, max_reach)):
-            h1, h2 = random.sample(high_holds, num)
-
-    return h1, h2
 
 """
  + update this so that it gives feet for the route/handhold not just random feet
@@ -199,7 +222,7 @@ def get_feet_candidates(below_row, left_col = 0, right_col = 35):
     random.shuffle(feet)
     return feet
 
-def get_next_hand_move(current_hand, prev_hand=None, max_reach=12):
+def get_next_hand_move(current_hand, prev_hand=None, max_reach=12, min_reach=12):
     candidates = [h for h in KilterBoard if h["type"] == "h"]
 
     # must be above current hand
@@ -208,8 +231,8 @@ def get_next_hand_move(current_hand, prev_hand=None, max_reach=12):
     random.shuffle(candidates)
 
     for h in candidates:
-        if reachable(current_hand, h):
-            if prev_hand is None or reachable(h, prev_hand, max_reach):
+        if reachable(current_hand, h, max_reach, min_reach):
+            if prev_hand is None or reachable(h, prev_hand, max_reach, min_reach):
                 return h
     return None
 
@@ -217,14 +240,20 @@ def generate_kilterclimb(
     min_moves=6,
     max_moves=12,
     allow_two_finishes=True,
-    max_reach = 12
+    max_reach = 12,
+    min_reach = 2
 ):
+    if min_reach > max_reach:
+        print("INVALID PARAMS: min_reach > max_reach")
+        return None
+    print(f"min reach{min_reach}, max reach {max_reach}")
+
     climb = []
     """
             START HANDS
     """
     #get starting hands
-    s1, s2 = get_start_hands(max_reach)
+    s1, s2 = get_start_hands(max_reach, min_reach)
     #appends them to the climb
     climb.append(Hold(s1["col"], s1["row"], "start"))
     last_left = s1
@@ -259,7 +288,7 @@ def generate_kilterclimb(
     current = max(s1, s2, key=lambda h: h["row"] if h else 0)
 
     for _ in range(num_moves):
-        next_hand = get_next_hand_move(current, prev_hand=s1 if s2 is None else s2, max_reach=max_reach)
+        next_hand = get_next_hand_move(current, prev_hand=s1 if s2 is None else s2, max_reach=max_reach, min_reach=min_reach)
         if next_hand is None:
             break
 
@@ -295,14 +324,14 @@ def generate_kilterclimb(
     finishHold1 = random.choice(finishes)
 
 
-    while not reachable(finishHold1, current, max_reach):
+    while not reachable(finishHold1, current, max_reach, min_reach):
         finishHold1 = random.choice(finishes);
     
     finishHold2: Hold
     if finish_count == 2:
         finishHold2 = random.choice(finishes)
 
-        while not reachable(finishHold1, finishHold2, max_reach):
+        while not reachable(finishHold1, finishHold2, max_reach, min_reach):
             finishHold2 = random.choice(finishes)
 
     climb.append(Hold(finishHold1["col"], finishHold1["row"], "finish"))
