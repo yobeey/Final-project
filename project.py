@@ -160,7 +160,7 @@ def is_good_opposition(h1, h2, min_dx=2, max_dx=12, max_dy=12):
     dy = abs(h1["row"] - h2["row"])
     return (dx >= min_dx) and (dx <= max_dx) and (dy <= max_dy)
 
-def get_start_hands():
+def get_start_hands(max_reach=12):
     candidates = [
         h for h in KilterBoard
         if h["type"] == "h" and 7 <= h["row"] <= 13
@@ -170,12 +170,12 @@ def get_start_hands():
     # Attempt to pick opposing pair
     for i in range(len(candidates)):
         for j in range(i+1, len(candidates)):
-            if is_good_opposition(candidates[i], candidates[j]):
+            if reachable(candidates[i], candidates[j], max_reach):
                 return candidates[i], candidates[j]
 
     return random.choice(candidates), None
 
-def get_finish_holds(num=1):
+def get_finish_holds(num=1, max_reach=12):
     # Selects 1 or 2 high-up hand holds on the board.
     hand_holds = [h for h in KilterBoard if h["type"] == "h"]
     high_holds = [h for h in hand_holds if h["row"] >= 30]
@@ -184,12 +184,9 @@ def get_finish_holds(num=1):
         high_holds = hand_holds
     
     h1, h2 = random.sample(high_holds, num)
-    print("Here 1")
     if num == 2:
-        print("here!")
-        while (not is_good_opposition(h1, h2)):
+        while (not reachable(h1, h2, max_reach)):
             h1, h2 = random.sample(high_holds, num)
-            print ("here!")
 
     return h1, h2
 
@@ -202,7 +199,7 @@ def get_feet_candidates(below_row, left_col = 0, right_col = 35):
     random.shuffle(feet)
     return feet
 
-def get_next_hand_move(current_hand, prev_hand=None):
+def get_next_hand_move(current_hand, prev_hand=None, max_reach=12):
     candidates = [h for h in KilterBoard if h["type"] == "h"]
 
     # must be above current hand
@@ -212,7 +209,7 @@ def get_next_hand_move(current_hand, prev_hand=None):
 
     for h in candidates:
         if reachable(current_hand, h):
-            if prev_hand is None or is_good_opposition(h, prev_hand):
+            if prev_hand is None or reachable(h, prev_hand, max_reach):
                 return h
     return None
 
@@ -220,13 +217,15 @@ def generate_kilterclimb(
     min_moves=6,
     max_moves=12,
     allow_two_finishes=True,
+    max_reach = 12
 ):
     climb = []
     """
             START HANDS
     """
-    s1, s2 = get_start_hands()
-
+    #get starting hands
+    s1, s2 = get_start_hands(max_reach)
+    #appends them to the climb
     climb.append(Hold(s1["col"], s1["row"], "start"))
     last_left = s1
     last_right = s2
@@ -260,7 +259,7 @@ def generate_kilterclimb(
     current = max(s1, s2, key=lambda h: h["row"] if h else 0)
 
     for _ in range(num_moves):
-        next_hand = get_next_hand_move(current, prev_hand=s1 if s2 is None else s2)
+        next_hand = get_next_hand_move(current, prev_hand=s1 if s2 is None else s2, max_reach=max_reach)
         if next_hand is None:
             break
 
@@ -290,10 +289,25 @@ def generate_kilterclimb(
     if not finishes:
         finishes = [h for h in KilterBoard if h["type"] == "h"]
 
+    #chooses the finishes
     finish_count = random.randint(1,2) if allow_two_finishes else 1
 
-    for f in random.sample(finishes, finish_count):
-        climb.append(Hold(f["col"], f["row"], "finish"))
+    finishHold1 = random.choice(finishes)
+
+
+    while not reachable(finishHold1, current, max_reach):
+        finishHold1 = random.choice(finishes);
+    
+    finishHold2: Hold
+    if finish_count == 2:
+        finishHold2 = random.choice(finishes)
+
+        while not reachable(finishHold1, finishHold2, max_reach):
+            finishHold2 = random.choice(finishes)
+
+    climb.append(Hold(finishHold1["col"], finishHold1["row"], "finish"))
+    if finish_count == 2:
+        climb.append(Hold(finishHold2["col"], finishHold2["row"], "finish"))
 
     return climb
 
