@@ -3,7 +3,6 @@ from tkinter import Canvas, Button, PhotoImage
 import math
 import random
 import re
-import time
 
 KilterBoard = []
 
