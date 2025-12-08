@@ -21,6 +21,8 @@ import math
 import random
 import re
 import json
+from pathlib import Path
+import sys
 
 # --- CONFIGURATION ---
 # Global list storing all board holds with their attributes (col, row, type, direction, grip_type, base_difficulty)
@@ -45,6 +47,12 @@ ACCENT_COLOR = "#007acc"  # blue accent
 ERROR_COLOR = "#ff4d4d"   # red for errors
 BUTTON_COLOR = "#2a2a2a"
 BUTTON_HOVER = "#3a3a3a"
+
+def resource_path(relative_name: str) -> str:
+    """
+    Resolve a resource path relative to this script's directory.
+    """
+    return str((Path(__file__).parent / relative_name).resolve())
 
 # --- TOOLTIP CLASS ---
 class ToolTip:
@@ -132,7 +140,7 @@ class KilterBoardGUI:
         width = BOARD_COLS * CELL_SIZE + PADDING * 2
         height = BOARD_ROWS * CELL_SIZE + PADDING * 2
 
-        img = tk.PhotoImage(file="IMG_4033.png")
+        img = tk.PhotoImage(file=resource_path("IMG_4033.png"))
         self.scaled_img = img.subsample(2, 2)
 
         # Left Frame: Board Canvas
@@ -1101,5 +1109,12 @@ def load_kilterBoard(filepath: str):
                 "base_difficulty": base_difficulty
             })
 
-load_kilterBoard("kilterBoardLayout.txt")
-start_gui()
+def main():
+    if sys.version_info < (3, 7):
+        print("This app requires Python 3.7+. Try: python3 project.py")
+        sys.exit(1)
+    load_kilterBoard(resource_path("kilterBoardLayout.txt"))
+    start_gui()
+
+if __name__ == "__main__":
+    main()
