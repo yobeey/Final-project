@@ -2,7 +2,7 @@
 
 A professional Python/Tkinter application for generating realistic climbing routes on a Kilter Board (35×35 grid training wall). The system uses rule-based algorithms to create routes with realistic difficulty ratings based on actual hold types, wall angles, move distances, and sequence flow—not just slider parameters.
 
-## 🎯 Problem It Solves
+##  Problem It Solves
 
 Climbers training on Kilter Boards often struggle with:
 - **Route variety**: Manually setting routes is time-consuming
@@ -16,7 +16,7 @@ This application solves these problems by:
 - **Providing flow analysis** to identify routes with smooth, climbable sequences
 - **Saving routes** for later reference and training plans
 
-## 🚀 How to Run
+##  How to Run
 
 ### Prerequisites
 
@@ -43,7 +43,7 @@ Final-project/
    ```
 3. The GUI will open in fullscreen mode (press `Escape` to exit fullscreen)
 
-## 🖥️ GUI Features
+##  GUI Features
 
 ### Sliders
 
@@ -69,13 +69,13 @@ Final-project/
 ### Difficulty Display
 
 - **Difficulty Label**: Shows route difficulty (Easy, Intermediate, Hard, Very Hard) with numeric score
-- **Flow Indicator**: Displays "✅ Good Flow" if the route has smooth left/right alternation and upward progression (score ≥ 70%)
+- **Flow Indicator**: Displays "Good Flow" if the route has smooth left/right alternation and upward progression (score ≥ 70%)
 
 ### Tooltips
 
 Hover over any slider or checkbox to see detailed explanations of what each parameter does.
 
-## 🔧 How Route Generation Works
+##  How Route Generation Works
 
 The route generation follows a rule-based algorithm that mimics real route-setting principles:
 
@@ -145,7 +145,7 @@ The flow score evaluates route quality based on:
 
 Routes with **≥ 70% flow score** display "Good Flow", indicating a smooth, climbable sequence.
 
-## 📁 File Format
+##  File Format
 
 ### kilterBoardLayout.txt
 
