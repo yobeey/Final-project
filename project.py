@@ -13,8 +13,6 @@ Key Features:
 - Professional GUI with tooltips, error handling, and route saving
 - Fully offline and rule-based (no machine learning or external APIs)
 
-Author: ASU Final Project
-License: Educational Use
 """
 
 import tkinter as tk
