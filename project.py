@@ -42,7 +42,7 @@ PADDING = 20
 
 # --- MODERN GUI STYLES ---
 BG_COLOR = "#1e1e1e"      # dark gray
-FG_COLOR = "#ffffff"      # white
+FG_COLOR = "#000000"      # black
 ACCENT_COLOR = "#007acc"  # blue accent
 ERROR_COLOR = "#ff4d4d"   # red for errors
 BUTTON_COLOR = "#2a2a2a"
