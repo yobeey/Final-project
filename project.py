@@ -1000,8 +1000,8 @@ def estimate_route_difficulty(climb: list) -> tuple[str, float]:
     # Calculate weighted composite score
     # Convert normalized_distance (0-1) to 0-5 scale for consistency: multiply by 5
     final_score = (
-        avg_hold_difficulty * 0.4 +           # 0-5 scale, 40% weight
-        (normalized_distance * 5.0) * 0.3 +    # 0-1 normalized to 0-5, 30% weight
+        avg_hold_difficulty * 0.4 +            # 0-5 scale, 40% weight
+        (normalized_distance * 10.0) * 0.3 +   # 0-1 normalized to 0-5, 30% weight
         normalized_angle * 0.2 +               # 0-5 scale, 20% weight
         flow_penalty * 0.1                     # 0-5 scale, 10% weight
     )
