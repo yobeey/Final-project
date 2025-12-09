@@ -41,10 +41,11 @@ CELL_SIZE = 20   # pixels per square
 PADDING = 20
 
 # --- MODERN GUI STYLES ---
-BG_COLOR = "#1e1e1e"      # dark gray
-FG_COLOR = "#000000"      # black
-ACCENT_COLOR = "#007acc"  # blue accent
-ERROR_COLOR = "#ff4d4d"   # red for errors
+BG_COLOR = "#1e1e1e"            # dark gray
+FG_TEXT_COLOR_BLACK = "#000000" # black
+FG_TEXT_COLOR_WHITE = "#FFFFFF" # white
+ACCENT_COLOR = "#007acc"        # blue accent
+ERROR_COLOR = "#ff4d4d"         # red for errors
 BUTTON_COLOR = "#2a2a2a"
 BUTTON_HOVER = "#3a3a3a"
 
@@ -104,7 +105,7 @@ class ToolTip:
         tw.wm_geometry("+%d+%d" % (x, y))
         label = tk.Label(tw, text=self.text, justify='left',
                          background="#ffffe0", relief='solid', borderwidth=1,
-                         font=("tahoma", "8", "normal"), wraplength=200)
+                         font=("tahoma", "8", "normal"), wraplength=200, fg=FG_TEXT_COLOR_BLACK)
         label.pack(ipadx=1)
 
     def hidetip(self):
@@ -157,7 +158,7 @@ class KilterBoardGUI:
         right_frame.pack(side="right", fill="y")
 
         # Title Label
-        title_label = tk.Label(right_frame, text="Kilter Board Route Generator", font=("Segoe UI", 14, "bold"), fg=FG_COLOR, bg=BG_COLOR)
+        title_label = tk.Label(right_frame, text="Kilter Board Route Generator", font=("Segoe UI", 14, "bold"), fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         title_label.pack(pady=(0, 15))
 
         # Slider Section
@@ -165,7 +166,7 @@ class KilterBoardGUI:
         slider_frame.pack(fill="x", pady=10)
 
         # Max Reach
-        max_reach_label = tk.Label(slider_frame, text="Max Reach:", fg=FG_COLOR, bg=BG_COLOR)
+        max_reach_label = tk.Label(slider_frame, text="Max Reach:", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         max_reach_label.grid(row=0, column=0, sticky="w", padx=5)
 
         self.max_reach_slider = tk.Scale(
@@ -175,7 +176,7 @@ class KilterBoardGUI:
             orient="horizontal",
             length=200,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             highlightbackground=BG_COLOR,
             troughcolor=ACCENT_COLOR,
             command=self.update_max_reach_label
@@ -184,11 +185,11 @@ class KilterBoardGUI:
         self.max_reach_slider.grid(row=0, column=1, padx=5)
         ToolTip(self.max_reach_slider, "Maximum Euclidean distance between consecutive holds. Note: Final difficulty is computed from the actual route, not these sliders.")
 
-        self.max_reach_value = tk.Label(slider_frame, text=f"{self.max_reach_slider.get()}", fg=FG_COLOR, bg=BG_COLOR)
+        self.max_reach_value = tk.Label(slider_frame, text=f"{self.max_reach_slider.get()}", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         self.max_reach_value.grid(row=0, column=2, padx=5)
 
         # Min Reach
-        min_reach_label = tk.Label(slider_frame, text="Min Reach:", fg=FG_COLOR, bg=BG_COLOR)
+        min_reach_label = tk.Label(slider_frame, text="Min Reach:", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         min_reach_label.grid(row=1, column=0, sticky="w", padx=5)
 
         self.min_reach_slider = tk.Scale(
@@ -198,7 +199,7 @@ class KilterBoardGUI:
             orient="horizontal",
             length=200,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             highlightbackground=BG_COLOR,
             troughcolor=ACCENT_COLOR,
             command=self.update_min_reach_label
@@ -207,11 +208,11 @@ class KilterBoardGUI:
         self.min_reach_slider.grid(row=1, column=1, padx=5)
         ToolTip(self.min_reach_slider, "Minimum Euclidean distance between consecutive holds. Note: Final difficulty is computed from the actual route, not these sliders.")
 
-        self.min_reach_value = tk.Label(slider_frame, text=f"{self.min_reach_slider.get()}", fg=FG_COLOR, bg=BG_COLOR)
+        self.min_reach_value = tk.Label(slider_frame, text=f"{self.min_reach_slider.get()}", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         self.min_reach_value.grid(row=1, column=2, padx=5)
 
         # Max Moves
-        max_moves_label = tk.Label(slider_frame, text="Max Moves:", fg=FG_COLOR, bg=BG_COLOR)
+        max_moves_label = tk.Label(slider_frame, text="Max Moves:", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         max_moves_label.grid(row=2, column=0, sticky="w", padx=5)
 
         self.max_moves_slider = tk.Scale(
@@ -221,7 +222,7 @@ class KilterBoardGUI:
             orient="horizontal",
             length=200,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             highlightbackground=BG_COLOR,
             troughcolor=ACCENT_COLOR,
             command=self.update_max_moves_label
@@ -230,11 +231,11 @@ class KilterBoardGUI:
         self.max_moves_slider.grid(row=2, column=1, padx=5)
         ToolTip(self.max_moves_slider, "Maximum number of hand moves in the route. Note: Final difficulty is computed from the actual route, not these sliders.")
 
-        self.max_moves_value = tk.Label(slider_frame, text=f"{self.max_moves_slider.get()}", fg=FG_COLOR, bg=BG_COLOR)
+        self.max_moves_value = tk.Label(slider_frame, text=f"{self.max_moves_slider.get()}", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         self.max_moves_value.grid(row=2, column=2, padx=5)
 
         # Min Moves
-        min_moves_label = tk.Label(slider_frame, text="Min Moves:", fg=FG_COLOR, bg=BG_COLOR)
+        min_moves_label = tk.Label(slider_frame, text="Min Moves:", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         min_moves_label.grid(row=3, column=0, sticky="w", padx=5)
 
         self.min_moves_slider = tk.Scale(
@@ -244,7 +245,7 @@ class KilterBoardGUI:
             orient="horizontal",
             length=200,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             highlightbackground=BG_COLOR,
             troughcolor=ACCENT_COLOR,
             command=self.update_min_moves_label
@@ -253,7 +254,7 @@ class KilterBoardGUI:
         self.min_moves_slider.grid(row=3, column=1, padx=5)
         ToolTip(self.min_moves_slider, "Minimum number of hand moves in the route. Note: Final difficulty is computed from the actual route, not these sliders.")
 
-        self.min_moves_value = tk.Label(slider_frame, text=f"{self.min_moves_slider.get()}", fg=FG_COLOR, bg=BG_COLOR)
+        self.min_moves_value = tk.Label(slider_frame, text=f"{self.min_moves_slider.get()}", fg=FG_TEXT_COLOR_WHITE, bg=BG_COLOR)
         self.min_moves_value.grid(row=3, column=2, padx=5)
 
         # Checkboxes
@@ -266,11 +267,11 @@ class KilterBoardGUI:
             checkbox_frame,
             text="Remove Upward Restriction",
             variable=self.crazy_checkbox_var,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             bg=BG_COLOR,
             selectcolor=BUTTON_COLOR,
             activebackground=BG_COLOR,
-            activeforeground=FG_COLOR
+            activeforeground=FG_TEXT_COLOR_BLACK
         )
         crazy_check.pack(anchor="w", padx=5)
         ToolTip(crazy_check, "Allow downward or sideways moves (disable strict upward progression)")
@@ -281,11 +282,11 @@ class KilterBoardGUI:
             checkbox_frame,
             text="Allow Two Finishes",
             variable=self.two_finishes_checkbox_var,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             bg=BG_COLOR,
             selectcolor=BUTTON_COLOR,
             activebackground=BG_COLOR,
-            activeforeground=FG_COLOR
+            activeforeground=FG_TEXT_COLOR_BLACK
         )
         two_fishes_check.select()
         two_fishes_check.pack(anchor="w", padx=5)
@@ -296,7 +297,7 @@ class KilterBoardGUI:
             right_frame,
             text="Difficulty: Generate a route to see difficulty",
             font=("Segoe UI", 11, "bold"),
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_WHITE,
             bg=BG_COLOR
         )
         self.difficulty_label.pack(pady=10)
@@ -307,7 +308,7 @@ class KilterBoardGUI:
             right_frame,
             text="",
             font=("Segoe UI", 10),
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_BLACK,
             bg=BG_COLOR
         )
         self.flow_label.pack(pady=5)
@@ -321,7 +322,7 @@ class KilterBoardGUI:
             text="Generate New Climb",
             command=self.generate_and_draw,
             bg=ACCENT_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_BLACK,
             font=("Segoe UI", 10, "bold"),
             relief="flat",
             padx=20,
@@ -339,7 +340,7 @@ class KilterBoardGUI:
             text="Save Route",
             command=self.save_route,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_BLACK,
             font=("Segoe UI", 10),
             relief="flat",
             padx=20,
@@ -356,7 +357,7 @@ class KilterBoardGUI:
             text="Reset to Defaults",
             command=self.reset_to_defaults,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_BLACK,
             font=("Segoe UI", 10),
             relief="flat",
             padx=20,
@@ -372,7 +373,7 @@ class KilterBoardGUI:
             text="Randomize Parameters",
             command=self.randomize_parameters,
             bg=BUTTON_COLOR,
-            fg=FG_COLOR,
+            fg=FG_TEXT_COLOR_BLACK,
             font=("Segoe UI", 10),
             relief="flat",
             padx=20,
@@ -418,7 +419,7 @@ class KilterBoardGUI:
         if climb is None:
             self.difficulty_label.config(
                 text="Difficulty: Generate a route to see difficulty",
-                fg=FG_COLOR
+                fg=FG_TEXT_COLOR_BLACK
             )
             self.flow_label.config(text="")
             return
@@ -446,7 +447,7 @@ class KilterBoardGUI:
         )
         # Only show flow label if it's not empty (i.e., score ≥ 70%)
         if flow_label:
-            self.flow_label.config(text=flow_label)
+            self.flow_label.config(text=flow_label, fg=FG_TEXT_COLOR_WHITE)
         else:
             self.flow_label.config(text="")
 
